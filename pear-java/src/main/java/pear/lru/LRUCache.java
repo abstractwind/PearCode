@@ -1,5 +1,8 @@
 package pear.lru;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,31 +12,45 @@ import java.util.Map;
  */
 public class LRUCache {
 
-    protected int max_size;
-//    protected static final int MAX_SIZE = 0;
-    private Map<Integer, Integer> cache;
-    
-    public LRUCache(int capacity) {
-        this.max_size = capacity;
-        this.cache = new java.util.LinkedHashMap<Integer, Integer> (capacity, 0.75f, true) {
+    public List<Integer> keyList;
 
-            // 定义put后的移除规则，大于容量就删除eldest
-            public boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
-                return size() > max_size;
-            }
-        };
-        
+    public Map<Integer, Integer> cache;
+
+    public int capacity;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        keyList = new ArrayList<Integer>(capacity);
+        cache = new HashMap<Integer, Integer>(capacity);
     }
-    
+
     public int get(int key) {
-        if (cache.containsKey(key)) {
-            return cache.get(key);
-        } else
-            return -1;
+        Integer val = cache.get(key);
+        if (val != null) {
+            // 将val放到头部
+            addHeadToList(key);
+            return val;
+        }
+        return -1;
     }
-    
+
     public void put(int key, int value) {
+        addHeadToList(key);
         cache.put(key, value);
     }
-}
 
+    private void addHeadToList(int key) {
+        if (keyList.contains(key)) {
+            keyList.remove((Object) key);
+            keyList.add(key);
+        } else {
+            keyList.add(key);
+        }
+        if (keyList.size() > capacity) {
+            int k = keyList.get(0);
+            keyList.remove(0);
+            cache.remove(k);
+        }
+    }
+
+}
