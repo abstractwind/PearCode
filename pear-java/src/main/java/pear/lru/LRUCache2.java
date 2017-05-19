@@ -64,9 +64,6 @@ public class LRUCache2 {
         
         head.next.pre = node;
         head.next = node;
-        if(node.next == tail){
-            tail.pre = node;
-        }
         cache.put(node.key, node);
     }
 
